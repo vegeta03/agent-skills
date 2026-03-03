@@ -12,7 +12,7 @@ from lib.generators import (
     generate_copilot_files,
     generate_cursor_files,
 )
-from lib.skill_loader import load_skills
+from lib.skill_loader import Skill, load_skills
 
 
 def parse_args() -> argparse.Namespace:
@@ -61,7 +61,33 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Remove stale generated files for selected targets.",
     )
+    parser.add_argument(
+        "--skills",
+        default=None,
+        help="Optional comma-separated canonical skill names to generate (default: all).",
+    )
     return parser.parse_args()
+
+
+def _filter_skills(skills: list[Skill], skills_arg: str | None) -> list[Skill]:
+    if skills_arg is None:
+        return skills
+
+    requested = [name.strip() for name in skills_arg.split(",") if name.strip()]
+    if not requested:
+        raise ValueError("`--skills` was provided but no valid skill names were found.")
+
+    available = {skill.name for skill in skills}
+    missing = sorted({name for name in requested if name not in available})
+    if missing:
+        available_csv = ", ".join(sorted(available))
+        missing_csv = ", ".join(missing)
+        raise ValueError(
+            f"Unknown skill(s): {missing_csv}. Available skills: {available_csv}"
+        )
+
+    requested_set = set(requested)
+    return [skill for skill in skills if skill.name in requested_set]
 
 
 def main() -> int:
@@ -71,7 +97,11 @@ def main() -> int:
     source_dir = Path(args.source).resolve() if args.source else repo_root / ".agents" / "skills"
     workspace = Path(args.workspace).resolve()
 
-    skills = load_skills(source_dir)
+    try:
+        skills = _filter_skills(load_skills(source_dir), args.skills)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     file_map: dict[Path, str] = {}
 
     include_cursor = args.target in ("cursor", "all")

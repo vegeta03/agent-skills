@@ -20,12 +20,26 @@ Converted source plugins:
 - `plugins/frontend-design`
 - `plugins/ralph-wiggum`
 
+Additional repository-native skill:
+- `microsoft-learn-deep-research`
+
 Strictest feasible parity is implemented in canonical skills, with explicit boundaries for non-portable Claude-only mechanisms:
 - SessionStart hooks
 - Stop hook interception
 - Claude command frontmatter/tool contracts
 
 These boundaries are documented inside relevant skill references (especially `ralph-wiggum`).
+
+## Canonical Skill Catalog
+
+Current canonical skill IDs:
+- `explanatory-output-style`
+- `learning-output-style`
+- `code-review`
+- `feature-dev`
+- `frontend-design`
+- `ralph-wiggum`
+- `microsoft-learn-deep-research`
 
 ## Requirements
 
@@ -40,12 +54,21 @@ Recommended in consumer repositories:
 
 Generated adapter files reference canonical source paths under `agent-skills/.agents/skills/...`.
 
+Consumer repo quick start:
+
+```bash
+python agent-skills/scripts/sync.py --target all --invocation both --workspace .
+```
+
 ## CLI Usage
+
+Run from the `agent-skills/` repository root:
 
 ```bash
 python scripts/sync.py \
   --target cursor|copilot|augment|all \
   --invocation auto|manual|both \
+  [--skills skill1,skill2,...] \
   --workspace <target-repo> \
   [--source <skills-path>] \
   [--dry-run] [--check] [--force] [--prune]
@@ -55,6 +78,7 @@ python scripts/sync.py \
 
 - `--target`: output target (`all` default)
 - `--invocation`: invocation behavior (`both` default)
+- `--skills`: optional comma-separated skill names (default: all skills)
 - `--workspace`: target repository path (default `.`)
 - `--source`: canonical source directory (default `./.agents/skills`)
 - `--dry-run`: print operations without writing
@@ -104,6 +128,12 @@ All targets, both-mode:
 python scripts/sync.py --target all --invocation both --workspace ../target-repo
 ```
 
+Single skill only:
+
+```bash
+python scripts/sync.py --target all --invocation both --skills microsoft-learn-deep-research --workspace ../target-repo
+```
+
 Auto-only:
 
 ```bash
@@ -126,6 +156,63 @@ Cleanup stale generated files:
 
 ```bash
 python scripts/sync.py --target all --invocation both --workspace ../target-repo --prune
+```
+
+## One-Line Installers (No Clone)
+
+These installers download a temporary archive of this repository, run `scripts/sync.py`, and clean up.
+For security, prefer the download-then-run variants over pipe execution.
+
+Installer prerequisites:
+- Bash flow: `python3` or `python`, `curl` or `wget`, and `tar`
+- PowerShell flow: PowerShell 5.1+ and Python (`py -3`, `python`, or `python3`)
+
+Repository:
+- `https://github.com/vegeta03/agent-skills.git`
+
+### Bash (Linux/macOS/Git Bash)
+
+Recommended (download then run):
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/vegeta03/agent-skills/master/scripts/install.sh" -o "/tmp/agent-skills-install.sh" && bash "/tmp/agent-skills-install.sh" --target all --invocation both --workspace .
+```
+
+Optional pipe-to-shell:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/vegeta03/agent-skills/master/scripts/install.sh" | bash -s -- --target all --invocation both --workspace .
+```
+
+### PowerShell (Windows)
+
+Recommended (download then run):
+
+```powershell
+$u="https://raw.githubusercontent.com/vegeta03/agent-skills/master/scripts/install.ps1"; $f=Join-Path $env:TEMP "agent-skills-install.ps1"; iwr $u -OutFile $f; & $f -Target all -Invocation both -Workspace .
+```
+
+Optional pipe execution:
+
+```powershell
+iex "& { $(irm https://raw.githubusercontent.com/vegeta03/agent-skills/master/scripts/install.ps1) } -Target all -Invocation both -Workspace ."
+```
+
+### Installer Options
+
+Both installers support:
+- target selection (`--target` / `-Target`)
+- invocation selection (`--invocation` / `-Invocation`)
+- optional skill filtering (`--skills` / `-Skills`)
+- workspace path (`--workspace` / `-Workspace`)
+- ref override (`--ref` / `-Ref`)
+- repo override (`--repo` / `-Repo`)
+- sync passthrough flags (`--dry-run`, `--check`, `--force`, `--prune`)
+
+Single-skill one-line example:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/vegeta03/agent-skills/master/scripts/install.sh" | bash -s -- --target copilot --invocation manual --skills microsoft-learn-deep-research --workspace .
 ```
 
 ## Publisher Mode

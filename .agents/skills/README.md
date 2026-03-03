@@ -10,6 +10,17 @@ This directory is the canonical source of truth for portable Agent Skills.
 - `plugins/feature-dev` -> `.agents/skills/feature-dev`
 - `plugins/frontend-design` -> `.agents/skills/frontend-design`
 - `plugins/ralph-wiggum` -> `.agents/skills/ralph-wiggum`
+- `microsoft-learn-deep-research` -> `.agents/skills/microsoft-learn-deep-research` (repo-native skill)
+
+## Current Canonical Skills
+
+- `explanatory-output-style`
+- `learning-output-style`
+- `code-review`
+- `feature-dev`
+- `frontend-design`
+- `ralph-wiggum`
+- `microsoft-learn-deep-research`
 
 ## Portability Notes
 
